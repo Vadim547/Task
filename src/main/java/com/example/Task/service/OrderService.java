@@ -5,7 +5,6 @@ import com.example.Task.exception.EntityException;
 import com.example.Task.model.*;
 import com.example.Task.repository.OrderRepository;
 import com.example.Task.staticClasses.Status;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -94,7 +93,7 @@ public class OrderService {
         InvoiceDto invoiceDto = new InvoiceDto(invoice);
         invoiceService.add(invoiceDto);
 
-        OrderResponceDto orderResponceDto = new OrderResponceDto(Status.SUCCESS(), invoiceDto.getId());
+        OrderResponceDto orderResponceDto = orderStatusByInvoiceId(invoiceDto.getId());;
 
         return new ResponseEntity<>(orderResponceDto, HttpStatus.OK);
     }
@@ -121,6 +120,12 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+    private OrderResponceDto orderStatusByInvoiceId(Long id) {
+        Optional<Invoice> invoice = invoiceService.getInvoiceById(id);
+        if (invoice.isEmpty()) return new OrderResponceDto(Status.FAILED(), id);
+
+        return new OrderResponceDto(Status.FAILED(), invoice.get().getId());
     }
 
     private Timestamp nextMonthFromCurrent() {
