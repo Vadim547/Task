@@ -4,6 +4,7 @@ import com.example.Task.Dto.*;
 import com.example.Task.exception.EntityException;
 import com.example.Task.model.*;
 import com.example.Task.repository.OrderRepository;
+import com.example.Task.staticClasses.Status;
 import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,7 +94,7 @@ public class OrderService {
         InvoiceDto invoiceDto = new InvoiceDto(invoice);
         invoiceService.add(invoiceDto);
 
-        OrderResponceDto orderResponceDto = new OrderResponceDto(hasSavedInvoice(invoiceDto.getId()), invoiceDto.getId());
+        OrderResponceDto orderResponceDto = new OrderResponceDto(Status.SUCCESS(), invoiceDto.getId());
 
         return new ResponseEntity<>(orderResponceDto, HttpStatus.OK);
     }
@@ -108,8 +109,7 @@ public class OrderService {
     }
 
     public ResponseEntity<List<OrderWithoutInvoceDto>> withoutInvoice() {
-        List<OrderWithoutInvoceDto> orders = orderRepository.findAll().stream()
-                .filter(order -> order.getInvoice() == null)
+        List<OrderWithoutInvoceDto> orders = orderRepository.withoutInvoice().stream()
                 .map(order -> new OrderWithoutInvoceDto(
                         order.getId(),
                         order.getDate().toString(),
@@ -121,15 +121,6 @@ public class OrderService {
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(orders, HttpStatus.OK);
-    }
-
-    private String hasSavedInvoice(Long id) {
-        Optional<Invoice> invoice = invoiceService.getInvoiceById(id);
-        if (invoice.isEmpty()) {
-            return "FAILED";
-        }
-
-        return "SUCCESS";
     }
 
     private Timestamp nextMonthFromCurrent() {

@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequestMapping("/customer")
 public class CustomerService {
     private CustomerRepository customerRepository;
 

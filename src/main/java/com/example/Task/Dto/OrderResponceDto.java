@@ -10,4 +10,12 @@ import lombok.NoArgsConstructor;
 public class OrderResponceDto {
     private String status;
     private Long invoiceNumber;
+
+    public void setStatus(boolean status) {
+        if (status) {
+            this.status = "SUCCESS";
+        }
+
+        this.status = "FAILED";
+    }
 }
